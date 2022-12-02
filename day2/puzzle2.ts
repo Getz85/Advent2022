@@ -1,6 +1,6 @@
 import {getHand, getResult, Hand, OpponentEntry, PlayerEntry} from "./common";
 
-function getVariantHead(playerEntry: PlayerEntry, opponentHand: Hand): Hand {
+function getVariantHand(playerEntry: PlayerEntry, opponentHand: Hand): Hand {
     if (playerEntry === "Y") {
         return opponentHand;
     } else if (playerEntry === "X") {
@@ -19,7 +19,7 @@ function getVariantHead(playerEntry: PlayerEntry, opponentHand: Hand): Hand {
 }
 function computePoints(opponentEntry: OpponentEntry, playerEntry: PlayerEntry) {
     const opponentHand = getHand(opponentEntry);
-    const playerHand = getVariantHead(playerEntry, opponentHand);
+    const playerHand = getVariantHand(playerEntry, opponentHand);
     return playerHand + getResult(playerHand, opponentHand);
 }
 
