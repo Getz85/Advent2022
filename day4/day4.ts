@@ -28,7 +28,6 @@ export function countFullyOverlappingPairs(pairs: Array<string>) {
  export function countIntersectingPairs(pairs: Array<string>) {
     return pairs.reduce((nb, pair) => {
         const [left, right] = pair.split(",");
-        console.log(left, right, arePairsIntersecting(left, right));
         return nb + (arePairsIntersecting(left, right) ? 1 : 0)
     }, 0);
 }
