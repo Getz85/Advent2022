@@ -21,7 +21,7 @@ describe('Day 11', () => {
             expect(getMonkeyBusiness(example, 10000, null)).to.equal(2713310158);
         });
         it("Should get monkey business without worry level limit from input data", () => {
-            expect(getMonkeyBusiness(inputData, 10000, null)).to.equal("TODO");
+            expect(getMonkeyBusiness(inputData, 10000, null)).to.equal(14081365540);
         });
     });
 });

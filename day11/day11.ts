@@ -5,10 +5,11 @@
  */
 export function getMonkeyBusiness(input: string, rounds = 20, monkeyLevelDivision: number | null = 3) {
     const monkeys = initMonkeys(input, monkeyLevelDivision);
+    // Common monkeys divider, based on each divisible test, to avoid overflows for puzzle 2
+    const commonDivider = monkeys.reduce((d, m) => d * m.divisibleByValue, 1);
     for (let round = 0; round < rounds; round++) {
         for (const monkey of monkeys) {
-
-            monkey.inspect((monkeyId, worryLvl) => {
+            monkey.inspect(commonDivider, (monkeyId, worryLvl) => {
                 const receiverMonkey = monkeys.find(m => m.id === monkeyId);
                 if (receiverMonkey) {
                     receiverMonkey.addItem(worryLvl);
@@ -41,7 +42,9 @@ class Monkey {
     protected operation: (old: number) => number
     protected test: (worryLvl: number) => number
     protected _inspectionsCount = 0;
-    /**
+    protected _divisibleByValue: number = 0;
+
+    /** 
      * 
      * @param monkeyInput Input as string
      * @example 
@@ -62,27 +65,27 @@ class Monkey {
             const left = oldOrValue(l);
             const right = oldOrValue(r);
             try {
-            switch (operator) {
-                case "+":
-                    return left + right;
-                case "*":
-                    return left * right;
-                case "-":
-                    return left - right;
-                case "/":
-                    return left / right;
-                default:
-                    throw new Error(`Unknown operator ${operator}`)
+                switch (operator) {
+                    case "+":
+                        return left + right;
+                    case "*":
+                        return left * right;
+                    case "-":
+                        return left - right;
+                    case "/":
+                        return left / right;
+                    default:
+                        throw new Error(`Unknown operator ${operator}`)
+                }
+            } catch (err) {
+                console.error(err, left, right);
+                throw err;
             }
-        } catch(err) {
-            console.error(err, left, right);
-            throw err;
-        }
         };
-        const divisible = parseInt(lines[3].substring(21));
+        this._divisibleByValue = parseInt(lines[3].substring(21));
         const trueCondition = parseInt(lines[4].substring(29));
         const falseCondition = parseInt(lines[5].substring(30));
-        this.test = (worryLvl) => worryLvl % divisible === 0 ? trueCondition : falseCondition;
+        this.test = (worryLvl) => worryLvl % this._divisibleByValue === 0 ? trueCondition : falseCondition;
     }
 
     get id() {
@@ -97,20 +100,24 @@ class Monkey {
         return this._inspectionsCount;
     }
 
-    inspect(throwToMonkey: (monkeyId: number, worryLvl: number) => void) {
+    get divisibleByValue() {
+        return this._divisibleByValue;
+    }
+
+    inspect(commonDivider: number, throwToMonkey: (monkeyId: number, worryLvl: number) => void) {
         while (this._items.length > 0) {
             const item = this._items[0];
             this._inspectionsCount++;
             // console.log(`Monkey ${this._id} inspects an item with a worry level of ${item}.`);
             let worryLvl = this.operation(item);
             if (worryLvl === Infinity) {
-                //TODO Part 2 : What to do here...
                 throw new Error("Operation overflows");
             }
             // console.log(`Worry level goes to ${worryLvl}`);
             if (this.monkeyLevelDivision) {
                 worryLvl = Math.floor(Number(worryLvl) / this.monkeyLevelDivision);
             }
+            worryLvl = worryLvl % commonDivider;
             // console.log(`Monkey gets bored with item. Worry level is divided by 3 to ${worryLvl}.`);
             const monkeyId = this.test(worryLvl);
             // console.log(`Item with worry level ${worryLvl} is thrown to monkey ${monkeyId}.`)
